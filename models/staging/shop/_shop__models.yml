@@ -26,6 +26,7 @@ models:
                 values: ['paid', 'pending', 'returned', 'cancelled', 'test']
       - name: order_amount
         description: "Сумма заказа в рублях после скидок."
+        data_tests: [not_null, non_negative]
 
   - name: stg_shop__customers
     description: "Клиенты из источника: одна строка — один клиент."
@@ -40,7 +41,7 @@ models:
     description: "Позиции заказов: одна строка — один товар в заказе."
     columns:
       - name: order_item_id
-        description: "Ключ позиции вида 101-1: номер заказа и номер товара через дефис."
+        description: "Ключ позиции, сгенерированный макросом dbt_utils.generate_surrogate_key из order_id и product_id."
         data_tests: [unique, not_null]
       - name: order_id
         description: "Заказ, в который входит позиция."
@@ -52,8 +53,10 @@ models:
                 field: order_id
       - name: gross_amount
         description: "Сумма позиции до скидки: количество × цена."
+        data_tests: [not_null, non_negative]
       - name: line_amount
         description: "Сумма позиции после скидки."
+        data_tests: [not_null, non_negative]
 
   - name: stg_shop__payments
     description: "Платёжные операции: одна строка — одна операция. У заказа их может быть несколько."
@@ -77,3 +80,22 @@ models:
                 values: ['success', 'failed', 'pending']
       - name: is_refund
         description: "Возврат: успешная операция с отрицательной суммой."
+      - name: amount
+        description: "Сумма операции (отрицательная для возвратов)."
+        data_tests: [not_null]
+  - name: stg_shop__products
+    description: "Товары: одна строка — один товар."
+    columns:
+      - name: product_id
+        description: "Номер товара"
+        data_tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Название товара"
+        data_tests: [not_null]
+      - name: brand
+        description: "Бренд товара"
+      - name: category_name
+        description: "Имя категории товара"
+        data_tests: [not_null]

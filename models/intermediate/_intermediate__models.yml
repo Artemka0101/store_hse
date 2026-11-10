@@ -24,3 +24,21 @@ models:
         description: "Число неуспешных операций."
       - name: pending_operations_count
         description: "Число операций в ожидании."
+  - name: int_product_categories_tree
+    description: >
+      Разворачивает дерево категорий до 3 уровней иерархии.
+      Каждая строка — путь от корневой категории до конкретной категории товара.
+      Используется для построения витрины dim_products.
+    columns:
+      - name: l1_id
+        description: "Идентификатор корневой категории."
+      - name: l1_name
+        description: "Название корневой категории."
+      - name: l2_id
+        description: "Идентификатор подкатегории."
+      - name: l2_name
+        description: "Название подкатегории."
+      - name: l3_id
+        description: "Идентификатор конкретной категории товара."
+      - name: l3_name
+        description: "Название конкретной категории товара."

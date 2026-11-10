@@ -26,6 +26,19 @@ order_payments as (
         {%- endfor %}
     from payments
     group by order_id
+),
+
+order_items as (
+    select * from {{ ref('stg_shop__order_items') }}
+),
+
+-- считаем количество различных товаров в каждом заказе с помощью distinct
+order_items_agg as (
+    select 
+        order_id,
+        count(distinct product_id) as items_count
+    from order_items
+    group by order_id
 )
 
 select
@@ -46,7 +59,13 @@ select
     coalesce(p.failed_operations_count, 0)   as failed_operations_count,
     coalesce(p.pending_operations_count, 0)  as pending_operations_count,
     o.order_status = 'paid' and coalesce(p.successful_payments_count, 0) > 0
-                                             as is_confirmed                 -- статус paid и хотя бы одна успешная оплата
+                                             as is_confirmed,              -- статус paid и хотя бы одна успешная оплата
+    coalesce(oi.items_count, 0) as items_count  -- количество разных товаров в заказе
+    
 from orders as o
 left join order_payments as p
     on p.order_id = o.order_id
+
+-- присоединяем количество товаров к каждому заказу
+left join order_items_agg as oi
+    on oi.order_id = o.order_id
